@@ -46,7 +46,7 @@ public class Room implements Closeable {
   private final Logger log = LoggerFactory.getLogger(Room.class);
 
   private final ConcurrentMap<String, UserSession> participants = new ConcurrentHashMap<>();
-  private final MediaPipeline pipeline;
+  final MediaPipeline pipeline;
   private final String name;
 
   public String getName() {

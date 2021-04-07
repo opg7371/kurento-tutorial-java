@@ -19,6 +19,8 @@ package org.kurento.tutorial.groupcall;
 
 import java.io.IOException;
 
+import java.io.PrintWriter;
+
 import org.kurento.client.IceCandidate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,8 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+import org.kurento.client.MediaPipeline;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -70,6 +74,19 @@ public class CallHandler extends TextWebSocketHandler {
         final UserSession sender = registry.getByName(senderName);
         final String sdpOffer = jsonMessage.get("sdpOffer").getAsString();
         user.receiveVideoFrom(sender, sdpOffer);
+        
+        final MediaPipeline pipeline;
+        final String roomName = new String("room");
+        Room room = roomManager.getRoom(roomName);
+        log.debug("Incoming message from new user: {}", room.pipeline);
+
+        final String pipelineDot = room.pipeline.getGstreamerDot();
+        try (PrintWriter out = new PrintWriter("pipeline.dot")) {
+          out.println(pipelineDot);
+        } catch (IOException ex) {
+          log.error("[Handler::start] Exception: {}", ex.getMessage());
+        }    
+
         break;
       case "leaveRoom":
         leaveRoom(user);
